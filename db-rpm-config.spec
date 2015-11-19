@@ -3,10 +3,11 @@
 
 %global rrcdir          /usr/lib/rpm
 
-%global namespace       db
+%{!?namespace:%global namespace db}
 %global macro_ns        %{?namespace:%{namespace}_}
 %global script_ns       %{?namespace:%{namespace}-}
 %global macrofn_ns      %{?namespace:%{namespace}-}
+%global macrofn()       macros.%{?macrofn_ns}%1
 
 Summary: More or less DB related rpm configuration files
 Name: %{?script_ns}rpm-config
@@ -35,7 +36,7 @@ RPM configuration files used by DB team (but others might be interested too).
 sed \
     -e 's|@ML_MACRO_PFX@|%{?macro_ns}|g' \
     -e 's|@ML_FIX@|%ml_fix|g' \
-    %{SOURCE1} > macros.%{?macrofn_ns}ml
+    %{SOURCE1} > %{macrofn ml}
 
 %install
 mkdir -p %{buildroot}%{rrcdir}
