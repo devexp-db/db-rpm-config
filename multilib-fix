@@ -15,15 +15,13 @@ opt_arch=$(uname -i)
 # See rhbz#1242873 for more info.
 test "$opt_arch" = ppc64p7 && opt_arch=ppc64
 
-opt_destdir=
-opt_basename=
 opt_buildroot=$(pwd)
 opt_verbose=:
 opt_additional_suffix=
 
 # TODO: we could pretty easily implement other then 'cpp-header' stubs, if the
 # target file type allows some kind of "transparent" file inclusion.  For
-# example shell scripts might use '. "${opt_destdir}/${opt_basename}_x86_64.sh'.
+# example shell scripts might use '. "${destdir}/${filename}_x86_64.sh'.
 print_stub ()
 {
 cat <<EOF
@@ -40,21 +38,21 @@ cat <<EOF
  * But that option is deprecated anyway.
  */
 #if defined(__x86_64__)
-#include "${opt_basename}${opt_additional_suffix}_x86_64.h"
+#include "${filename}${opt_additional_suffix}_x86_64.h"
 #elif defined(__i386__)
-#include "${opt_basename}${opt_additional_suffix}_i386.h"
+#include "${filename}${opt_additional_suffix}_i386.h"
 #elif defined(__ppc64__) || defined(__powerpc64__)
-#include "${opt_basename}${opt_additional_suffix}_ppc64.h"
+#include "${filename}${opt_additional_suffix}_ppc64.h"
 #elif defined(__ppc__) || defined(__powerpc__)
-#include "${opt_basename}${opt_additional_suffix}_ppc.h"
+#include "${filename}${opt_additional_suffix}_ppc.h"
 #elif defined(__s390x__)
-#include "${opt_basename}${opt_additional_suffix}_s390x.h"
+#include "${filename}${opt_additional_suffix}_s390x.h"
 #elif defined(__s390__)
-#include "${opt_basename}${opt_additional_suffix}_s390.h"
+#include "${filename}${opt_additional_suffix}_s390.h"
 #elif defined(__sparc__) && defined(__arch64__)
-#include "${opt_basename}${opt_additional_suffix}_sparc64.h"
+#include "${filename}${opt_additional_suffix}_sparc64.h"
 #elif defined(__sparc__)
-#include "${opt_basename}${opt_additional_suffix}_sparc.h"
+#include "${filename}${opt_additional_suffix}_sparc.h"
 #endif
 EOF
 }
@@ -72,15 +70,13 @@ original file is moved to unique architecture-specific location.  This should be
 absolutely safe operation (effects of '#include <HEADER.h>' are unchanged.
 
 To allow us to do incompatible changes in this script, packagers should use this
-script only through %ml_fix_c_header wrapping macro.
+script only through available RPM macros.
 
---destdir       absolute path name where the old header file is stored, e.g.
-                /some/pat
---basename      when you deal with '/some/path/test.h', specify 'test'
 --buildroot     prefix (directory where we play with installed files, usually
                 after 'make install DESTDIR=buildroot')
+--file          for example /some/path/test.h
 --additional-suffix     we usually move 'test.h' to 'test_\$ARCH.h'.  However
-                this file could already exit.  With this option the multilib
+                this file could already exist.  With this option the multilib
                 file will be named 'test_\$ARCH\$SUFFIX.h'
 --verbose       print some useful information
 --help          show this help
@@ -112,20 +108,10 @@ while test $# -gt 0
 do
     _opt=$1 ; shift
     case $_opt in
-        --destdir)
-            opt_destdir=$1 ; shift || die "$_opt requires argument"
-            ;;
-        --basename)
-            opt_basename=$1 ; shift || die "$_opt require argument"
-            ;;
-        --buildroot)
-            opt_buildroot=$1 ; shift || die "$_opt require argument"
-            ;;
-        --arch)
-            opt_arch=$1 ; shift || die "$_opt require argument"
-            ;;
-        --additional-suffix)
-            opt_additional_suffix=$1 ; shift || die "$_opt require argument"
+        --buildroot|--arch|--additional-suffix|--file)
+            _raw_opt=$(echo "$_opt" | sed -e 's/^--//' -e 's/-/_/g')
+            eval "opt_$_raw_opt=\$1"
+            shift || die "$_opt requires argument"
             ;;
         --help)
             print_help 0
@@ -137,14 +123,29 @@ do
 done
 $error_occurred && print_help 1
 
-for i in arch buildroot destdir basename
+for i in arch buildroot file
 do
     eval "test -z \"\$opt_$i\"" && error "--$i needs to be set"
 done
 $error_occurred && print_help 1
 
-original_file="$opt_buildroot$opt_destdir/$opt_basename".h
-multilib_file="$opt_buildroot$opt_destdir/$opt_basename${opt_additional_suffix}_$opt_arch".h
+# --> /buildroot/usr/include/test.h
+original_file="$opt_buildroot$opt_file"
+
+# --> /buildroot/usr/include
+destdir=$(dirname "$original_file")
+
+# --> test.h
+orig_basename=$(basename "$original_file")
+
+# --> test
+filename=${orig_basename%%.[a-zA-Z0-9_]}
+
+# --> .h
+suffix=${orig_basename##${filename}}
+
+# --> ../test_x86_64.h (on x86_64)
+multilib_file="$destdir/$filename${opt_additional_suffix}_$opt_arch$suffix"
 
 test -f "$original_file" || die "can't find '$original_file'"
 
