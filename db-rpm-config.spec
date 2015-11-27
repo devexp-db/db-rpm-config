@@ -3,10 +3,11 @@
 
 %global rrcdir          /usr/lib/rpm
 
-%{!?namespace:%global namespace db}
-%global macro_ns        %{?namespace:%{namespace}_}
-%global script_ns       %{?namespace:%{namespace}-}
-%global macrofn_ns      %{?namespace:%{namespace}-}
+%{!?nonamespace:%{!?namespace:%global namespace db}}
+
+%global macro_ns        %{?namespace:%{namespace}_}%{!?namespace:%nil}
+%global script_ns       %{?namespace:%{namespace}-}%{!?namespace:%nil}
+%global macrofn_ns      %{?namespace:%{namespace}-}%{!?namespace:%nil}
 %global macrofn()       macros.%{?macrofn_ns}%1
 
 Summary: More or less DB related rpm configuration files
@@ -52,6 +53,7 @@ install -m 755 -p %{SOURCE0} %{buildroot}/%{ml_fix}
 %changelog
 * Fri Nov 27 2015 Pavel Raiskup <praiskup@redhat.com> - 1-2
 - fix licensing in Sources
+- allow undefined %%namespace
 
 * Wed Nov 18 2015 Pavel Raiskup <praiskup@redhat.com> - 1-1
 - initial packaging
