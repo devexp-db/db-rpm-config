@@ -12,7 +12,7 @@
 Summary: More or less DB related rpm configuration files
 Name: %{?script_ns}rpm-config
 Version: 1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL+
 Group: Development/System
 URL: https://github.com/devexp-db/db-rpm-config
@@ -50,5 +50,8 @@ install -m 755 -p %{SOURCE0} %{buildroot}/%{ml_fix}
 %{macrosdir}
 
 %changelog
+* Fri Nov 27 2015 Pavel Raiskup <praiskup@redhat.com> - 1-2
+- fix licensing in Sources
+
 * Wed Nov 18 2015 Pavel Raiskup <praiskup@redhat.com> - 1-1
 - initial packaging
