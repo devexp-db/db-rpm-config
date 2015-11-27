@@ -16,4 +16,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+
+# Macro @ML_MACRO_PFX@ml_fix_c_header is expected to be called
+# from %install (usually after 'make install' call) like:
+# %@ML_MACRO_PFX@ml_fix_c_header --file %{_includedir}/broken-header.h
 %@ML_MACRO_PFX@ml_fix_c_header @ML_FIX@ --buildroot "$RPM_BUILD_ROOT"
