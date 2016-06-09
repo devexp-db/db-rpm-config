@@ -1,4 +1,4 @@
-# Basic set of macros for 'fix-multilib' script.
+# Basic set of macros for 'multilib-fix' script.
 # Copyright (C) 2015 Red Hat, Inc.
 # Written by Pavel Raiskup <praiskup@redhat.com>
 #
@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
-# Macro @ML_MACRO_PFX@ml_fix_c_header is expected to be called
+# Macro multilib_fix_c_header is expected to be called
 # from %install (usually after 'make install' call) like:
-# %@ML_MACRO_PFX@ml_fix_c_header --file %{_includedir}/broken-header.h
-%@ML_MACRO_PFX@ml_fix_c_header @ML_FIX@ --buildroot "$RPM_BUILD_ROOT"
+# multilib_fix_c_header --file %{_includedir}/broken-header.h
+%multilib_fix_c_header @ML_FIX@ --buildroot "$RPM_BUILD_ROOT"
