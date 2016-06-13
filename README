@@ -1,5 +1,5 @@
-This project contains set of RPM packaging hepers to make the multlib fixes
-cetralized at one place for whole distribution.
+This project contains set of RPM packaging helpers to make the multilib fixes
+centralized at one place for whole distribution.
 
 For more info have a look at:
 https://fedorahosted.org/fpc/ticket/312
