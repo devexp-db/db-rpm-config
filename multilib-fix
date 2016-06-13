@@ -30,7 +30,7 @@ test "$opt_arch" = ppc64p7 && opt_arch=ppc64
 
 opt_buildroot=$(pwd)
 opt_verbose=:
-opt_additional_suffix=
+opt_field_separator=-
 
 # TODO: we could pretty easily implement other then 'cpp-header' stubs, if the
 # target file type allows some kind of "transparent" file inclusion.  For
@@ -38,6 +38,7 @@ opt_additional_suffix=
 # The solution is taken from Fedora PostgreSQL RPM package.
 print_stub ()
 {
+    replacement=$filename$opt_field_separator
 cat <<EOF
 /*
  * Kluge to support multilib installation of both 32- and 64-bit RPMS:
@@ -52,21 +53,21 @@ cat <<EOF
  * But that option is deprecated anyway.
  */
 #if defined(__x86_64__)
-#include "${filename}${opt_additional_suffix}_x86_64.h"
+#include "${replacement}x86_64.h"
 #elif defined(__i386__)
-#include "${filename}${opt_additional_suffix}_i386.h"
+#include "${replacement}i386.h"
 #elif defined(__ppc64__) || defined(__powerpc64__)
-#include "${filename}${opt_additional_suffix}_ppc64.h"
+#include "${replacement}ppc64.h"
 #elif defined(__ppc__) || defined(__powerpc__)
-#include "${filename}${opt_additional_suffix}_ppc.h"
+#include "${replacement}ppc.h"
 #elif defined(__s390x__)
-#include "${filename}${opt_additional_suffix}_s390x.h"
+#include "${replacement}s390x.h"
 #elif defined(__s390__)
-#include "${filename}${opt_additional_suffix}_s390.h"
+#include "${replacement}s390.h"
 #elif defined(__sparc__) && defined(__arch64__)
-#include "${filename}${opt_additional_suffix}_sparc64.h"
+#include "${replacement}sparc64.h"
 #elif defined(__sparc__)
-#include "${filename}${opt_additional_suffix}_sparc.h"
+#include "${replacement}sparc.h"
 #endif
 EOF
 }
@@ -89,9 +90,8 @@ script only through available RPM macros.
 --buildroot     prefix (directory where we play with installed files, usually
                 after 'make install DESTDIR=buildroot')
 --file          for example /some/path/test.h
---additional-suffix     we usually move 'test.h' to 'test_\$ARCH.h'.  However
-                this file could already exist.  With this option the multilib
-                file will be named 'test_\$ARCH\$SUFFIX.h'
+--field-separator   by default we move filename.h to filename<SEP><ARCH>.h; this
+                option option allows you to override the <SEP> part
 --verbose       print some useful information
 --help          show this help
 EOF
@@ -122,7 +122,7 @@ while test $# -gt 0
 do
     _opt=$1 ; shift
     case $_opt in
-        --buildroot|--arch|--additional-suffix|--file)
+        --buildroot|--arch|--file|--field-separator)
             _raw_opt=$(echo "$_opt" | sed -e 's/^--//' -e 's/-/_/g')
             eval "opt_$_raw_opt=\$1"
             shift || die "$_opt requires argument"
@@ -159,7 +159,7 @@ filename=${orig_basename%%.[a-zA-Z0-9_]}
 suffix=${orig_basename##${filename}}
 
 # --> ../test_x86_64.h (on x86_64)
-multilib_file="$destdir/$filename${opt_additional_suffix}_$opt_arch$suffix"
+multilib_file="$destdir/$filename$opt_field_separator$opt_arch$suffix"
 
 test -f "$original_file" || die "can't find '$original_file'"
 
