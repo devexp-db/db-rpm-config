@@ -8,9 +8,6 @@
 
 %global rrcdir          %_libexecdir
 
-%global macro_ns        multilib_
-%global macrofn_ns      multilib-
-
 Summary: Multilib packaging helpers
 Name: multilib-rpm-config
 Version: 1
