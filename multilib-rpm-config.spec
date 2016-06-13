@@ -57,7 +57,7 @@ install -m 755 -p %{SOURCE0} %{buildroot}/%{ml_fix}
 
 %changelog
 * Mon Jun 13 2016 Pavel Raiskup <praiskup@redhat.com> - 1-4
-- use '-' as field separator
+- use '-' as a field separator by default
 
 * Thu Jun 09 2016 Pavel Raiskup <praiskup@redhat.com> - 1-3
 - package separately from redhat-rpm-config

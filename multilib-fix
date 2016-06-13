@@ -91,7 +91,7 @@ script only through available RPM macros.
                 after 'make install DESTDIR=buildroot')
 --file          for example /some/path/test.h
 --field-separator   by default we move filename.h to filename<SEP><ARCH>.h; this
-                option option allows you to override the <SEP> part
+                option allows you to override the <SEP> part
 --verbose       print some useful information
 --help          show this help
 EOF
